@@ -1,0 +1,52 @@
+""" ARAP Webots main file """
+import robot
+
+def main():
+    red_encountered = False
+    green_encountered = False
+    blue_encountered = False
+    
+    robot1 = robot.ARAP()
+    robot1.init_devices()
+    
+    while True:
+        robot1.reset_actuator_values()
+        range = robot1.get_sensor_input()
+        robot1.blink_leds()
+        red, green, blue = robot1.get_camera_image(5)
+        
+        if robot1.front_obstacles_detected():
+            robot1.move_backward()
+            robot1.turn_left()
+        else:
+            robot1.run_braitenberg()
+        
+        # Check if the robot sees a colored block
+        if red > 140 and green < 105 and blue < 110 and not red_encountered:
+            print("I spot red")
+            red_encountered = True
+            print_summary(red_encountered, green_encountered, blue_encountered)
+        elif blue > 123 and red < 110 and green < 100 and not blue_encountered:
+            print("I spot blue")
+            blue_encountered = True
+            print_summary(red_encountered, green_encountered, blue_encountered)
+        elif green > 130 and red < 100 and blue < 100 and not green_encountered:
+            print("I spot green")
+            green_encountered = True
+            print_summary(red_encountered, green_encountered, blue_encountered)
+            
+        robot1.set_actuators()
+        robot1.step()
+
+def print_summary(red, green, blue):
+    print("Summary:")
+    if red:
+        print(" Red block Confronted")
+    if green:
+        print(" Green block Confronted")
+    if blue:
+        print(" Blue block Confronted")
+    print("")
+
+if __name__ == "__main__":
+    main()
